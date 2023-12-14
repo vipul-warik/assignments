@@ -1,0 +1,1 @@
+This is data to be write inside the a.txt file
