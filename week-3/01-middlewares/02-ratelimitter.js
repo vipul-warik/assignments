@@ -11,10 +11,29 @@ const app = express();
 // You have been given a numberOfRequestsForUser object to start off with which
 // clears every one second
 
+// Learn => destructuring of headers 
+
 let numberOfRequestsForUser = {};
 setInterval(() => {
     numberOfRequestsForUser = {};
 }, 1000)
+
+app.use(function(req, res, next) {
+  const id = req.headers['user-id'];
+  if(numberOfRequestsForUser.hasOwnProperty(id)) {
+    if(numberOfRequestsForUser[id] >= 5){
+      res.status(404).json({message: "you have exceeded the maximum number of requests limit"});
+    }
+      numberOfRequestsForUser[id]++;
+      next();
+  }
+  else{
+    numberOfRequestsForUser[id]=1;
+    next();
+  }
+  next();
+  
+})
 
 app.get('/user', function(req, res) {
   res.status(200).json({ name: 'john' });
@@ -23,5 +42,7 @@ app.get('/user', function(req, res) {
 app.post('/user', function(req, res) {
   res.status(200).json({ msg: 'created dummy user' });
 });
+
+app.listen(3000);
 
 module.exports = app;

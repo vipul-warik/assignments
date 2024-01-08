@@ -1,6 +1,7 @@
 const http = require('http');
 const path = require('path');
 const fs = require('fs');
+const fs1 = require('fs').promises;
 const server = require('../fileServer');
 
 describe('API Endpoints', () => {
@@ -38,7 +39,7 @@ describe('API Endpoints', () => {
 
       const directoryPath = path.resolve(__dirname, '../files/');
       jest
-        .spyOn(fs, 'readdir')
+        .spyOn(fs1, 'readdir')
         .mockImplementation((directoryPath, callback) => {
           callback(new Error('Mocked Internal Server Error'), null);
         });
@@ -47,7 +48,7 @@ describe('API Endpoints', () => {
 
       expect(response.statusCode).toBe(500);
 
-      fs.readdir.mockRestore();
+      fs1.readdir.mockRestore();
     });
   });
 

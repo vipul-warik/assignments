@@ -41,9 +41,156 @@
  */
   const express = require('express');
   const bodyParser = require('body-parser');
+  const port = 8080;
+  const {readFromFile,appendToFile,updateFromFile,delteFromFile,getTodoFromFile} = require('./utils/fileReadWrite');
   
   const app = express();
+
+  app.listen(port, () => {
+    console.log(`Todo app listening on port ${port}`)
+  })
   
   app.use(bodyParser.json());
+
+  // *** HOME PAGE ***
+  app.get('/', (req, res) => {
+    res.send('Welcome to Todo Server');
+  })
+
+
+  // *** GET ALL TODOS (LIST) ***
+  app.get('/todos', async (req,res) => {
+
+    try {
+      const todosData = await readFromFile();
+
+      return res.status(200).json(todosData);
+
+    } catch (error) {
+      return res.status(500).json({
+        "message": "Interval server error",
+      });
+    }
+
+  })
+
+  
+  // *** GET TODO BY ID ***
+  app.get('/todos/:id', async (req, res) => {
+    try {
+      const todoId = req.params.id;
+
+      console.log(todoId);
+
+      const todoData = await getTodoFromFile(todoId);
+
+      if(todoData.length == 0){
+
+        return res.status(404).json({
+              "message": "Todo Id does not exists",
+            })}
+
+      return res.status(200).json(todoData[0]);      
+
+
+    } catch (error) {
+      return res.status(500).json({
+        "message": "Interval server error",
+      });
+    }
+      
+
+  });
+
+
+  // *** ADD A NEW TODO ***
+  app.post('/todos', async (req, res) => {
+    
+    try {
+      const {title, description} = req.body;
+
+      if(!title || !description){
+        return res.status(400).json({
+          message: "Invalid title or description",
+        })
+      }
+
+      const todoId = await appendToFile({"title": title, "description": description, "completed": false });
+
+      return res.status(201).json({
+        "id" : todoId,
+      })
+
+    } catch (error) {
+      return res.status(500).json({
+        "message": "Interval server error",
+      });
+    }
+
+  });
+
+
+  // *** UPDATE A TODO BY ID ***
+  app.put('/todos/:id', async (req, res) => {
+    try {
+
+      const todoId = req.params.id;
+      const {title: newTitle, description: newDescription, completed: newStatus} = req.body;
+
+      
+      if(!newTitle || !newDescription) {
+        return res.status(400).json({
+          message: "Invalid title,description or completed status",
+        })
+      }
+
+      const todoData = await getTodoFromFile(todoId);
+
+      if(todoData.length == 0){
+
+        return res.status(404).json({
+              "message": "Todo Id does not exists",
+            })}
+
+      todoData[0].title = newTitle;
+      todoData[0].description = newDescription;
+      newStatus == "true" ? todoData[0].completed = true : todoData[0].completed = false;
+
+      const data = await readFromFile();
+      console.log(data);
+      const updatedData = data.map((todo) => todo.id==todoId ? {...todoData[0]} : todo);
+      console.log(updatedData);
+
+      await updateFromFile(updatedData);
+
+      return res.status(200).json({
+        "message": "updated"
+      })
+
+    } catch (error) {
+      return res.status(500).json({
+        "message": "Interval server error",
+      });
+    }
+  });
+
+  // *** DELETE A TODO BY ID ***
+  app.delete('/todos/:id', async (req, res) => {
+    try {
+      const todoId = req.params.id;
+
+      await delteFromFile(todoId);
+
+      return res.status(200).json({
+        message: "Todo deleted"
+      });
+
+    } catch (error) {
+      return res.status(500).json({
+        "message": "Interval server error",
+      });
+    }
+          
+  });
   
   module.exports = app;
