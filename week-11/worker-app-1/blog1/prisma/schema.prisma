@@ -1,0 +1,31 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = "prisma://accelerate.prisma-data.net/?api_key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlfa2V5IjoiMTY3MjFiYjktNjdkZC00Yjk5LWJhOTYtZWQ0NGU1MWY4YTU3IiwidGVuYW50X2lkIjoiMGVlOWZmOGE1MWFjNzI0OTQ3NjkxNTI2NGQxZDdjM2QzNDhjZjM2Njc0NjdiMmYxMWRjNjJjNjBhZWM1YjI1ZiIsImludGVybmFsX3NlY3JldCI6ImUxMjE3ZDA4LTk1NDAtNDQyOS1iYzdiLTllYzAyZWQzN2MxMiJ9.aK8ZDck5C5sntYn15CfU3v0TrBiVPS6cqTgfczKjiY0"
+  directUrl      = "postgresql://vipul-warik:58eWtBqjfGav@ep-still-frost-a1k3anlg.ap-southeast-1.aws.neon.tech/blog?sslmode=require"
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  username String @unique
+  email String @unique
+  password String
+  posts Post[]
+}
+
+model Post {
+  id Int @id @default(autoincrement())
+  title String
+  description String
+  user_id Int
+  author User @relation(fields: [user_id], references: [id])
+}

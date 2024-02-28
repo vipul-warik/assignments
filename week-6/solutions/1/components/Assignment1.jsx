@@ -5,18 +5,17 @@ import { useMemo, useState } from "react";
 
 export function Assignment1() {
     const [input, setInput] = useState(0);
-    // Your solution starts here
-    let expensiveValue = useMemo(() => {
-        let factorial = 1;
-        for(let i=2;i<=input;i++) {
-            factorial *= i;
+
+    const expensiveValue = useMemo(() => {
+        // Your solution starts here
+        let value = 1;
+        for (let i = 1; i <= input; i++) {
+            value = value * i;
         }
-
-        return factorial;
-    },[input]); 
-    // Your solution ends here
-
+        return value;
+    }, [input]);
     
+    // Your solution ends here
 
     return (
         <div>
